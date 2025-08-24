@@ -8,10 +8,10 @@ module Transmitter
     input rst,
     input send,
     input parity_type,
-    output baudratetx,
+    output baudratetx,tx_clk,
     output reg serialdata_out, tx_done);
     
-    baud_rate_TX a1(.clk1(clk1),.rst(rst),.baud_clk_T(baudratetx));
+    baud_rate_TX a1(.rst(rst),.baud_clk_T(baudratetx),.tx_clk(tx_clk));
 
     localparam idle=3'b000,
                frame=3'b001,
@@ -97,28 +97,32 @@ module Transmitter
 endmodule
 
 module baud_rate_TX(
-  input clk1,rst,
-  output reg baud_clk_T
-);
-  parameter integer baud_rate = 1152000;
-  parameter integer fqr = 50000000;
+  input rst,
+  output reg baud_clk_T, tx_clk);
+  parameter integer baud_rate = 9600;
+  parameter integer fqr = 5;
   integer count;
-  parameter integer clk_div = fqr / baud_rate;
+  parameter integer clk_per_bit = 20;
   
-  always@(posedge clk1 ) begin
+  initial begin
+    tx_clk=0;
+    forever #fqr tx_clk=~tx_clk;
+  end 
+  
+  always@(posedge tx_clk ) begin
     if(rst) begin
       count <= 0;
       baud_clk_T <= 0;
     end
     else begin
-      if(count == clk_div-1) begin
-      count <= 0;
-      baud_clk_T <= 1;
-    end
-    else begin
-      count =count + 1;
-      baud_clk_T <= 0;
-    end
+        if(count == clk_per_bit-1) begin
+            count <= 0;
+            baud_clk_T <= 1;
+        end
+        else begin
+            count =count + 1;
+            baud_clk_T <= 0;
+        end
     end
   end
 endmodule
