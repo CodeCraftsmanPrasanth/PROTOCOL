@@ -3,15 +3,14 @@ module Receiver
     #(parameter Data_length=8,
                 parity_en=1)
     (input serialdata_in,
-     input clk2,
      input rst,
     input tx_done,
     input parity_type,
     output reg [Data_length-1:0] parallel_dataout,
     output reg error, rx_done,
-    output baudraterx);
+    output baudraterx,rx_clk);
     
-    baud_rate_RX a1(.clk2(clk2),.rst(rst),.baud_clk_R(baudraterx));
+    baud_rate_RX a1(.rst(rst),.baud_clk_R(baudraterx),.rx_clk(rx_clk));
     
     localparam idle=3'b000,
                start=3'b001,
@@ -90,21 +89,26 @@ module Receiver
 endmodule
 
 module baud_rate_RX(
-  input clk2,rst,
-  output reg baud_clk_R
-);
-  parameter integer baud_rate = 1152000;
-  parameter integer fqr = 50000000;
+  input rst,
+  output reg baud_clk_R, rx_clk);
+  parameter integer baud_rate = 9600;
+  parameter integer fqr = 10;
   integer count;
-  parameter integer clk_div = fqr / baud_rate;
+  parameter integer clk_per_bit = 10;
   
-  always@(posedge clk2 ) begin
+  
+  initial begin
+    rx_clk=0;
+    forever #fqr rx_clk=~rx_clk;
+  end 
+  
+  always@(posedge rx_clk ) begin
     if(rst) begin
       count <= 0;
       baud_clk_R <= 0;
     end
     else begin
-      if(count == clk_div-1) begin
+      if(count == clk_per_bit-1) begin
       count <= 0;
       baud_clk_R <= 1;
     end
