@@ -4,7 +4,6 @@ module Transmitter
                 parity_en=0)
     (
     input [Data_length-1:0] datain,
-    input clk1,
     input rst,
     input send,
     input parity_type,
