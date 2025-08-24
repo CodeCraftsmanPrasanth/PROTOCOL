@@ -3,7 +3,8 @@ module UART_PROTOCOLtb;
     parameter Data_length=8,
               parity_en=1;
      reg [7:0] parallel_datain;
-     reg  clk1,clk2,send;
+     wire tx_clk,rx_clk;
+     reg  send;
      wire baudratetx;
      wire tx_serialout,tx_done;
      wire baudraterx;
@@ -11,15 +12,11 @@ module UART_PROTOCOLtb;
      wire rx_done,error;
      reg rst,parity_type;
      
-    UART_TOPMODULE #(.Data_length(Data_length),.parity_en(parity_en)) uut (.parallel_datain(parallel_datain),.clk1(clk1),.clk2(clk2),.rst(rst),.send(send),.baudratetx(baudratetx),.tx_serialout(tx_serialout),.tx_done(tx_done),.baudraterx(baudraterx),.data_out(data_out),.rx_done(rx_done),.error(error),.parity_type(parity_type));
+    UART_TOPMODULE #(.Data_length(Data_length),.parity_en(parity_en)) uut (.parallel_datain(parallel_datain),.tx_clk(tx_clk),.rx_clk(rx_clk),.rst(rst),.send(send),.baudratetx(baudratetx),.tx_serialout(tx_serialout),.tx_done(tx_done),.baudraterx(baudraterx),.data_out(data_out),.rx_done(rx_done),.error(error),.parity_type(parity_type));
      
-    always #5 clk1=~clk1;
-    always #5 clk2=~clk2;
     
     initial begin
     parity_type=0;
-    clk1=0;
-    clk2=0;
     rst = 1;
     #20; // Wait for a few cycles
     rst = 0;
@@ -44,7 +41,7 @@ module UART_PROTOCOLtb;
     @(posedge baudratetx); send=0;
     @(posedge tx_done ); parallel_datain=8'b11111111; send=1;
     @(posedge baudratetx); send=0;
-     #20000 $finish;
+     #10000 $finish;
 end
 
 endmodule
