@@ -3,7 +3,7 @@ module UART_PROTOCOLtb;
     parameter Data_length=8,
               parity_en=1;
      reg [7:0] parallel_datain;
-     wire tx_clk,rx_clk;
+     reg tx_clk,rx_clk;
      reg  send;
      wire baudratetx;
      wire tx_serialout,tx_done;
@@ -14,7 +14,16 @@ module UART_PROTOCOLtb;
      
     UART_TOPMODULE #(.Data_length(Data_length),.parity_en(parity_en)) uut (.parallel_datain(parallel_datain),.tx_clk(tx_clk),.rx_clk(rx_clk),.rst(rst),.send(send),.baudratetx(baudratetx),.tx_serialout(tx_serialout),.tx_done(tx_done),.baudraterx(baudraterx),.data_out(data_out),.rx_done(rx_done),.error(error),.parity_type(parity_type));
      
+    initial begin
+        tx_clk=0;
+        forever #5 tx_clk=~tx_clk;
+    end
     
+    initial begin
+        rx_clk=0;
+        forever #10 rx_clk=~rx_clk;
+    end
+   
     initial begin
     parity_type=0;
     rst = 1;
