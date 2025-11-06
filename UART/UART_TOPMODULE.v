@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
 module UART_TOPMODULE
     #(parameter Data_length=8,
-                parity_en=0)
+                parity_en=1)
      (input [7:0] parallel_datain,
-     input rst,send,parity_type,
+     input rst,send,parity_type,tx_clk,rx_clk,
      output tx_serialout,
-     output baudratetx,tx_clk,rx_clk,tx_done,error,
+     output baudratetx,tx_done,error,
      output rx_done,baudraterx,
      output [7:0] data_out);
     
